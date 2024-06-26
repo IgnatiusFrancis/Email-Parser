@@ -46,8 +46,9 @@ export class AuthService {
       this.logger.debug("access_token",tokens.access_token, tokens.refresh_token, tokens.expiry_date / 1000)
       
       // Store tokens in Redis
-      await this.redisService.setValue('access_token', tokens.access_token, tokens.expiry_date / 1000);
-      await this.redisService.setValue('refresh_token', tokens.refresh_token);
+      await this.redisService.setValue('access_token', tokens.access_token, Math.floor(tokens.expiry_date / 1000));
+await this.redisService.setValue('refresh_token', tokens.refresh_token);
+
 
       this.logger.log('Tokens stored in Redis');
       this.logger.debug('Generated Token:', tokens);
