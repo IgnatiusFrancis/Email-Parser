@@ -34,11 +34,11 @@ export class AuthController {
   //   }
   // }
 
-  @Get('google/callback')
-  async googleCallback(@Query('code') code: string) {
-    console.log("REDIRECTING FOR TOKEN")
-    return await this.authService.getGoogleTokens(code);
-  }
+  // @Get('google/callback')
+  // async googleCallback(@Query('code') code: string) {
+  //   console.log("REDIRECTING FOR TOKEN")
+  //   return await this.authService.getGoogleTokens(code);
+  // }
 
   @Get('google/callback')
   async googleAuthCallback(@Query('code') code: string, @Res() res) {
