@@ -11,7 +11,10 @@ export class EmailService {
 
   constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.get('OPENAI_API_KEY');
-    this.openai = new OpenAI({ apiKey });
+    this.openai = new OpenAI({ 
+      organization:"org-hLMIGougp9ZvKMV8YTOdLcyN",
+      project: "proj_9Y1Io1zR94lSu4PtrsonalXs",
+     });
   }
   async parseGmail(accessToken: string) {
 try {
@@ -22,12 +25,14 @@ try {
   const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
   const messages = await gmail.users.messages.list({ userId: 'me' });
 
-  this.logger.debug('Fetched messages:', messages);
+  this.logger.debug('Fetched messages...');
  
   for (const message of messages.data.messages||[]) {
     const msg = await gmail.users.messages.get({ userId: 'me', id: message.id });
     const context = await this.getContext(msg.data.snippet);
+    this.logger.debug('context', context);
     const label = this.assignLabel(context);
+    this.logger.debug('label', label);
     await this.sendReply(gmail, message.id, label, context);
   }
 } catch (error) {
@@ -37,12 +42,14 @@ try {
 
   private async getContext(snippet: string): Promise<string> {
   try {
+    this.logger.debug('context checking');
     const params: CompletionCreateParams = {
-      model: 'text-davinci-003',
+      model: 'gpt-3.5-turbo',
       prompt: `Extract context from this email snippet: ${snippet}`,
-      max_tokens: 50,
+      max_tokens: 10,
     };
     const response = await this.openai.completions.create(params);
+    this.logger.debug('context response', response);
     return response.choices[0].text.trim();
   } catch (error) {
     throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR)

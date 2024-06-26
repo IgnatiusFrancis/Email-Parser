@@ -4,12 +4,11 @@ import { AuthController } from './auth.controller';
 import { TasksModule } from 'src/tasks/tasks.module';
 import { TasksService } from 'src/tasks/tasks.service';
 import { EmailService } from 'src/email/email.service';
+import { RedisService } from 'src/tasks/redis.service';
+
 
 @Module({
-  imports: [
-    TasksModule, 
-  ],
-  providers: [AuthService, Logger, TasksService, EmailService],
+  providers: [AuthService, Logger, EmailService, TasksService],
   controllers: [AuthController,]
 })
 export class AuthModule {}
