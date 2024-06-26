@@ -44,6 +44,7 @@ export class AuthService {
       this.googleOAuth2Client.setCredentials(tokens);
 
       this.logger.debug("access_token",tokens.access_token, tokens.refresh_token, tokens.expiry_date / 1000)
+      
       // Store tokens in Redis
       await this.redisService.setValue('access_token', tokens.access_token, tokens.expiry_date / 1000);
       await this.redisService.setValue('refresh_token', tokens.refresh_token);

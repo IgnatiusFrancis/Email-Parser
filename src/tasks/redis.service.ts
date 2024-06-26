@@ -41,12 +41,19 @@ export class RedisService implements OnModuleInit {
   }
 
   async setValue(key: string, value: string, expirySeconds?: number): Promise<void> {
-    if (expirySeconds) {
-      await this.redis.set(key, value, 'EX', expirySeconds);
-    } else {
-      await this.redis.set(key, value);
+    try {
+      if (expirySeconds) {
+        await this.redis.set(key, value, 'EX', expirySeconds);
+      } else {
+        await this.redis.set(key, value);
+      }
+    } catch (error) {
+      // Handle Redis command errors
+      console.error(`Error setting value for key ${key}:`, error);
+      throw error; // Optionally rethrow or handle as appropriate
     }
   }
+  
 
   async getValue(key: string): Promise<string | null> {
     return this.redis.get(key);
