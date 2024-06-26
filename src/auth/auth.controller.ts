@@ -34,24 +34,20 @@ export class AuthController {
   //   }
   // }
 
-  // @Get('google/callback')
-  // async googleCallback(@Query('code') code: string) {
-  //   console.log("REDIRECTING FOR TOKEN")
-  //   return await this.authService.getGoogleTokens(code);
-  // }
+
 
   @Get('google/callback')
   async googleAuthCallback(@Query('code') code: string, @Res() res) {
     try {
-      this.logger.log("Start of callback handler");
+      this.logger.debug("Start of callback handler");
       const tokens = await this.authService.getGoogleTokens(code);
-      this.logger.log("Tokens received", tokens);
+      this.logger.debug("Tokens received", tokens);
 
-      // Optionally store tokens securely in your database here
-      const messages = await this.authService.getMessages(tokens.access_token);
-      this.logger.log("Retrieved messages", messages);
+      await this.tasksService.addEmailJob(tokens.access_token, 'gmail')
+      //const messages = await this.authService.getMessages(tokens.access_token);
+      //this.logger.debug("Retrieved messages", messages);
 
-      return res.status(HttpStatus.OK).json(messages);
+      return res.status(HttpStatus.OK).json("messages Successfully");
     } catch (error) {
       this.logger.error('Error during Google OAuth callback', error);
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(error.message);

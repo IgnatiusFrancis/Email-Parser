@@ -43,24 +43,32 @@ export class AuthService {
       const { tokens } = await this.googleOAuth2Client.getToken(code);
       this.googleOAuth2Client.setCredentials(tokens);
 
-      this.logger.debug("access_token",tokens.access_token, tokens.refresh_token, tokens.expiry_date / 1000)
-      
-      // Store tokens in Redis
-      await this.redisService.setValue('access_token', tokens.access_token, Math.floor(tokens.expiry_date / 1000));
-await this.redisService.setValue('refresh_token', tokens.refresh_token);
+      this.logger.debug(
+        'access_token',
+        tokens.access_token,
+        tokens.refresh_token,
+        tokens.expiry_date / 1000,
+      );
 
+      // Store tokens in Redis
+      await this.redisService.setValue(
+        'access_token',
+        tokens.access_token,
+        Math.floor(tokens.expiry_date / 1000),
+      );
+      await this.redisService.setValue('refresh_token', tokens.refresh_token);
 
       this.logger.log('Tokens stored in Redis');
       this.logger.debug('Generated Token:', tokens);
 
-return tokens
+      return tokens;
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async getMessages(accessToken: string) : Promise<any> {
+  async getMessages(accessToken: string): Promise<any> {
     try {
       this.logger.log('Start fetching messages...');
       const oauth2Client = new google.auth.OAuth2();
@@ -73,7 +81,10 @@ return tokens
       return messages;
     } catch (error) {
       this.logger.error('Error retrieving messages', error);
-      throw new HttpException('Failed to retrieve messages', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to retrieve messages',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -82,10 +93,16 @@ return tokens
     if (!accessToken) {
       const refreshToken = await this.redisService.getValue('refresh_token');
       if (refreshToken) {
-        throw new HttpException('No valid tokens found', HttpStatus.UNAUTHORIZED);
-       // accessToken = await this.refreshAccessToken(refreshToken);
+        throw new HttpException(
+          'No valid tokens found',
+          HttpStatus.UNAUTHORIZED,
+        );
+        // accessToken = await this.refreshAccessToken(refreshToken);
       } else {
-        throw new HttpException('No valid tokens found', HttpStatus.UNAUTHORIZED);
+        throw new HttpException(
+          'No valid tokens found',
+          HttpStatus.UNAUTHORIZED,
+        );
       }
     }
     return accessToken;

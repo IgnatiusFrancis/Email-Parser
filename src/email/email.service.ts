@@ -16,9 +16,8 @@ export class EmailService {
 try {
   console.log("Start....")
   const gmail = google.gmail({ version: 'v1', auth: accessToken });
-  console.log("end....", gmail.users.messages.list)
   const messages = await gmail.users.messages.list({ userId: 'me' });
-  console.log("start....", messages)
+ 
   for (const message of messages.data.messages||[]) {
     const msg = await gmail.users.messages.get({ userId: 'me', id: message.id });
     const context = await this.getContext(msg.data.snippet);
@@ -31,6 +30,7 @@ try {
   }
 
   private async getContext(snippet: string): Promise<string> {
+  try {
     const params: CompletionCreateParams = {
       model: 'text-davinci-003',
       prompt: `Extract context from this email snippet: ${snippet}`,
@@ -38,6 +38,9 @@ try {
     };
     const response = await this.openai.completions.create(params);
     return response.choices[0].text.trim();
+  } catch (error) {
+    throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR)
+  }
   }
 
   private assignLabel(context: string): string {

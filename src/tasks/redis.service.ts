@@ -48,9 +48,8 @@ export class RedisService implements OnModuleInit {
         await this.redis.set(key, value);
       }
     } catch (error) {
-      // Handle Redis command errors
       console.error(`Error setting value for key ${key}:`, error);
-      throw error; // Optionally rethrow or handle as appropriate
+      throw error; 
     }
   }
   
