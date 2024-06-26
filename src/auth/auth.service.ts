@@ -43,6 +43,7 @@ export class AuthService {
       const { tokens } = await this.googleOAuth2Client.getToken(code);
       this.googleOAuth2Client.setCredentials(tokens);
 
+      this.logger.debug("access_token",tokens.access_token, tokens.refresh_token, tokens.expiry_date / 1000)
       // Store tokens in Redis
       await this.redisService.setValue('access_token', tokens.access_token, tokens.expiry_date / 1000);
       await this.redisService.setValue('refresh_token', tokens.refresh_token);
@@ -50,7 +51,7 @@ export class AuthService {
       this.logger.log('Tokens stored in Redis');
       this.logger.debug('Generated Token:', tokens);
 
-
+return tokens
     } catch (error) {
       this.logger.error(error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
