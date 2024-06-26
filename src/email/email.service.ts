@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { google } from 'googleapis';
 import OpenAI from 'openai'; 
@@ -6,6 +6,7 @@ import { CompletionCreateParams } from 'openai/resources';
 
 @Injectable()
 export class EmailService {
+  private readonly logger = new Logger(EmailService.name);
   private openai: OpenAI; 
 
   constructor(private readonly configService: ConfigService) {
@@ -14,9 +15,14 @@ export class EmailService {
   }
   async parseGmail(accessToken: string) {
 try {
-  console.log("Start....")
-  const gmail = google.gmail({ version: 'v1', auth: accessToken });
+  this.logger.verbose('Start fetching messages...');
+  const oauth2Client = new google.auth.OAuth2();
+  oauth2Client.setCredentials({ access_token: accessToken });
+
+  const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
   const messages = await gmail.users.messages.list({ userId: 'me' });
+
+  this.logger.debug('Fetched messages:', messages);
  
   for (const message of messages.data.messages||[]) {
     const msg = await gmail.users.messages.get({ userId: 'me', id: message.id });
